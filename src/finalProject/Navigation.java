@@ -1,147 +1,150 @@
+
 package finalProject;
 
-// 
-// THIS IS AN OLD LAB FROM NAWRAS, NO MODIFICATION HAS BEEN MADE YET
-//
 
+import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
-public class Navigation extends Thread  {
-	
-	private static final int FORWARD_SPEED = 250;
-	private static final int ROTATE_SPEED = 150;
-	private static final int LOCALIZE_SPEED = 100;
-	
-	public double thetar, xr, yr;
-	private boolean navigating;
-	
-	private Odometer odo;
-	private double WHEEL_RADIUS;
-	private double WHEEL_WIDTH;
-	EV3LargeRegulatedMotor leftMotor;
-	EV3LargeRegulatedMotor rightMotor;
+
+
+public class Navigation extends Thread {
+	private static final Object lock = new Object();
+	private static final int FORWARD_STRAIGHT = 175; 
+	private static final int ROTATE_SPEED = 75;
+	private static double currentT = 0;
+	private EV3LargeRegulatedMotor leftMotor;
+	private EV3LargeRegulatedMotor rightMotor;
+	static Odometer odometer;
+	private static final double leftRadius = 2.1;
+	private static final double rightRadius =2.1;
+	private static final double width = 15;
+	private double xnow;
+	private double ynow;
+	private double tnow;
+	public static boolean navigationCalled = false; 
+	public static boolean turnCalled = false ;
+	public static final double WHEEL_RADIUS = 2.1;
+	public static final double TRACK = 16;
+	public static boolean isSensed = false; 
+	private Thread forward;
+	private final double threshold = 0.5;
+
+
+
 	
 	public Navigation(Odometer odometer){
-		this.odo =  odometer;
-		this.WHEEL_RADIUS = odo.get_WHEEL_RADIUS();
-		this.WHEEL_WIDTH = odo.get_WHEEL_WIDTH();
-		this.leftMotor = odo.getLeftMotor();
-		this.rightMotor = odo.getRightMotor();
-		navigating = false;
+		this.leftMotor = odometer.getLeftMotor();
+		this.rightMotor = odometer.getRightMotor();
+		odometer = odometer;
+		// we want the robot to move forward in a thread, for it should always be happening, except under certain conditions 
+		// We don't want the robot to move forward when it is turn (or else it would not be accurate) 
+		// we also want the robot to stop moving once it reaches the destination. 
+		
+
 	}
 	
-/**
- * Has the robot move to a position, relative to starting coordinates
- * 
- * Calculates angle and distance to move to using basic trig and then calls
- * the turnTo and goForward method to move to that point
- * 
- * @param X Coordinate of destination
- * @param Y Coordinate of destination
- */
-	public void travel (double x, double y){
-		//gets position. Synchronized to avoid collision
-			synchronized (odo.lock) {
-				thetar = odo.getTheta() * 180 / Math.PI;
-				xr = odo.getX();
-				yr = odo.getY();
+
+	public void travelTo(double x, double y){
+		double theta;
+		navigationCalled = true;
+		//once the robot turns, it can start moving forward
+		boolean done = false;
+		while(true){	
+			if (done) break;
+			while(!isSensed){
+			// we do not want this loop to work when the robot is following the wall 
+			if (Math.abs(x - xnow) < threshold && Math.abs(y - ynow) < threshold){
+				//once the robot approaches the destination with a threshold of 0.5, it quits the while loops 
+				Sound.beep();
+				leftMotor.stop(true);
+				rightMotor.stop(false);	
+				done = true;
+				break;
 			}
-			//calculates degrees to turn from 0 degrees
-			double thetad =  Math.atan2(x - xr, y - yr) * 180 / Math.PI;
-			//calculates actual angle to turn
-			double theta =  thetad - thetar;
-			//calculates magnitude to travel
-			double distance  = Math.sqrt(Math.pow((y-yr), 2) + Math.pow((x-xr),2));
-			//finds minimum angle to turn (ie: it's easier to turn +90 deg instead of -270)
-			if(theta < -180){
-				turnDegreesClockwise(theta + 360);
-			}
-			else if(theta > 180){
-				turnDegreesClockwise(theta - 360);
-			}
-			else turnDegreesClockwise(theta);
-			//updates values to display
 			
-			goForward(distance);
+			
+			//if(navigationCalled){
+				ynow = odometer.getY();
+				xnow = odometer.getX();
+				tnow = odometer.getTheta();
+				//we calculate the angle of the robot under difference circumstances. 
+				if (y-ynow == 0 && x-xnow > 0) {
+					theta = Math.PI/2;
+				} else if (y-ynow == 0 && x-xnow < 0) {
+					theta = -Math.PI/2;
+				} else if (x-xnow == 0 && y-ynow > 0) {
+					theta = 0;
+				} else if (x-xnow == 0 && y-ynow < 0) {
+					theta = Math.PI;
+				} else if((y-ynow) < 0 && x-xnow < 0){
+					theta = Math.atan((x - xnow)/(y-ynow)) - Math.PI;
+				} else if((y-ynow) < 0 && x-xnow > 0){
+					theta = Math.atan((x - xnow)/(y-ynow)) + Math.PI;
+				} else{
+					theta = Math.atan((x - xnow)/(y-ynow));
+				}
+				if(Math.abs(tnow - theta) > 1*Math.PI / 180){
+					turnTo(Math.toDegrees(theta),false);
+				} else {
+					//if the angle is off, the robot would correct it, else it would move forward.
+					leftMotor.setSpeed(FORWARD_STRAIGHT);
+					rightMotor.setSpeed(FORWARD_STRAIGHT);
+					leftMotor.forward();
+					rightMotor.forward();
+				}
+			}
+			//}
+		}// we want the robot to move forward at the same time as it reads its position 
+		// one it reaches its destination, it exists the loop. 
+		navigationCalled = false;
+		
 	}
+//	This method causes the robot to travel to the absolute field location (x, y).
+//	This method should continuously call turnTo(double theta) and then
+//	set the motor speed to forward(straight). This will make sure that your
+//	heading is updated until you reach your exact goal. (This method will poll
+//	the odometer for information)
 	
-	public void goForward(double distance){
-		
-		// drive forward 
-		leftMotor.setSpeed(FORWARD_SPEED);
-		rightMotor.setSpeed(FORWARD_SPEED);
-		
-		//for isNavigatingMethod
-		navigating = true;
-		
-		leftMotor.rotate(convertDistance(WHEEL_RADIUS, distance), true);
-		rightMotor.rotate(convertDistance(WHEEL_RADIUS, distance), false);
-		
-		navigating = false;
-	}
 	
-	public void turnDegreesClockwise (double theta){
-	
-		// turn degrees clockwise
-		leftMotor.setSpeed(LOCALIZE_SPEED);
-		rightMotor.setSpeed(LOCALIZE_SPEED);
-		
-		navigating = true;
-		//calculates angel to turn to and rotates
-		leftMotor.rotate(convertAngle(WHEEL_RADIUS, WHEEL_WIDTH, theta), true);
-		rightMotor.rotate(-convertAngle(WHEEL_RADIUS, WHEEL_WIDTH, theta), false);
-		
-		navigating = false;
-	}
-	public void rotate (boolean forward){
-		leftMotor.setSpeed(LOCALIZE_SPEED);
-		rightMotor.setSpeed(LOCALIZE_SPEED);
-		if (forward){
-			leftMotor.forward();
-			rightMotor.backward();
-		} else {
-			leftMotor.backward();
-			rightMotor.forward();
+	public void turnTo(double theta, boolean returnImmediately){
+		turnCalled = true;
+		currentT = odometer.getTheta();
+		//we want the robot to make the smallest turn 
+		double deltaT = (theta - Math.toDegrees(currentT));
+		//we want the angle to be in between -180 and 180 degrees
+		if (deltaT > 180){
+			deltaT -= 360;
+		} else if (deltaT < -180) {
+			deltaT += 360;
 		}
+		leftMotor.setSpeed(ROTATE_SPEED);
+		rightMotor.setSpeed(ROTATE_SPEED);
+		//we make the robot rotate
+		leftMotor.rotate(convertAngle(leftRadius, width, deltaT), true);
+		rightMotor.rotate(-convertAngle(rightRadius, width,deltaT), returnImmediately);
+			
+			
+		turnCalled = false;
+		
+	}
+	public static boolean isNavigating(){
+		return turnCalled || navigationCalled ;
+//	This method returns true if another thread has called travelTo() or
+//	turnTo() and the method has yet to return; false otherwise.
 	}
 	
-	public void stopMotors(){
-		leftMotor.stop();
-		rightMotor.stop();
-	}
-/**
- * Returns true if the robot is navigating
- * 
- * @return boolean indicating if the robot is traveling
- */
-	public boolean isNavigating(){
-		return this.navigating;
-	}
-/**
- * Returns degrees to turn servos in order to rotate robot by that amount
- * 
- * Uses basic math to convert and absolute angle to degrees to turn.
- * 
- * @param Radius of lego wheel
- * @param Width of wheel base
- * @param Absolute angle to turn to
- * 
- * @return Degrees the servo should turn
- */
-	public static int convertAngle(double radius, double width, double angle) {
-		//(width * angle / radius ) / (2)
-		return convertDistance(radius, Math.PI * width * angle / 360.0);
-	}
-/**
- * Moves robot linerly a certain distance
- * 
- * @param Radius of lego wheel
- * @param Distance to travel
- * 
- * @return degrees to turn servos in order to move forward by that amount
- */
-	public static int convertDistance(double radius, double distance) {
-		// ( D / R) * (360 / 2PI)
+ 
+	private static int convertDistance(double radius, double distance) {
 		return (int) ((180.0 * distance) / (Math.PI * radius));
 	}
+	
+	private static int convertAngle(double radius, double width, double angle) {
+		return convertDistance(radius, Math.PI * width * angle / 360.0);
+	}
+
+	//set method used in the WallFollower 
+	public static void setNavigationCalled(boolean called){
+		navigationCalled = called;
+	}
+	
 }
