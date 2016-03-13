@@ -41,20 +41,18 @@ public class Main {
 			while(true){
 				
 				System.out.println(SensorPoller.getValueUS());
+				System.out.println(" ");
 				
 			}
 			
 		
 		} else if(buttonChoice== Button.ID_RIGHT){		// right for color sensor
-			nav.turnTo(angle,true);
+			nav.rotate();
 			
 			while(true){
-				
-				//colorSensor.fetchSample(colorData, 0);
-				//distance =colorData[0]*100;
-				//System.out.println(distance);
-				if(odo.getTheta()>89)
-					break;
+	
+			System.out.println(SensorPoller.getValueColorFront());
+			System.out.println(" ");
 					
 			}
 			

@@ -18,21 +18,21 @@ public class SensorPoller extends Thread{
 
 	// Instantiate Sensor Ports
 	private static final Port portUs = LocalEV3.get().getPort("S1");
-	private static final Port portColorFront = LocalEV3.get().getPort("S2");
+	private static final Port portColorFront = LocalEV3.get().getPort("S4");
 	private static final Port portColorBack = LocalEV3.get().getPort("S3");
-	private static final Port portColorLauncher = LocalEV3.get().getPort("S4");
+	private static final Port portColorLauncher = LocalEV3.get().getPort("S2");
 
 	// US SENSOR
 	SensorModes usSensor = new EV3UltrasonicSensor(portUs);
 	SampleProvider usValue = usSensor.getMode("Distance");
 	float[] usData = new float[usValue.sampleSize()];
 
-	/*
 	// COLOR SENSOR FRONT
 	EV3ColorSensor colorSensorFront = new EV3ColorSensor(portColorFront);
 	SampleProvider colorValueFront = colorSensorFront.getRGBMode();
 	float[] colorDataFront = new float[colorValueFront.sampleSize()];
-
+	
+	/*
 	// COLOR SENSOR BACK
 	EV3ColorSensor colorSensorBack = new EV3ColorSensor(portColorBack);
 	SampleProvider colorValueBack = colorSensorBack.getRGBMode();
@@ -53,6 +53,9 @@ public class SensorPoller extends Thread{
 			if (valueUs > 255)
 				valueUs = 255;	
 			
+			colorSensorFront.fetchSample(colorDataFront, 0);
+			valueColorFront=(float)(colorDataFront[0]*100.0);			
+			
 			try { Thread.sleep(50); } catch(Exception e){}			
 		}
 	}
@@ -61,6 +64,10 @@ public class SensorPoller extends Thread{
 	
 	public static int getValueUS(){
 		return valueUs;
+	}
+
+	public static float getValueColorFront() {
+		return valueColorFront;
 	}
 	
 }
