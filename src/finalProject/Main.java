@@ -14,7 +14,7 @@ import lejos.robotics.SampleProvider;
 public class Main {
 	
 	private static final Port usPort = LocalEV3.get().getPort("S1");		
-	private static final Port colorPort = LocalEV3.get().getPort("S2");
+	//private static final Port colorPort = LocalEV3.get().getPort("S2");
 
 
 	public static void main(String[] args) {
@@ -24,40 +24,38 @@ public class Main {
 		Odometer odo = new Odometer();
 		Navigation nav = new Navigation(odo);
 		
-		
-		SensorModes us = new EV3UltrasonicSensor(usPort);
-		SampleProvider usSensor = us.getMode("Distance");			// colorValue provides samples from this instance
-		float[] usData = new float[usSensor.sampleSize()];				// colorData is the buffer in which data are returned
-		
-		SensorModes color = new EV3ColorSensor(colorPort);
-		SampleProvider colorSensor = color.getMode("Red");			// colorValue provides samples from this instance
-		float[] colorData = new float[colorSensor.sampleSize()];			// colorData is the buffer in which data are returned
+		//SensorModes color = new EV3ColorSensor(colorPort);
+		//SampleProvider colorSensor = color.getMode("Red");			// colorValue provides samples from this instance
+		//float[] colorData = new float[colorSensor.sampleSize()];			// colorData is the buffer in which data are returned
 		
 		
 		
 		float distance;
-		double angle = 90;
+		double angle = 200;
 		
 		LCD.drawString("< Left	| 	Right >	", 0, 0);
 		int buttonChoice = Button.waitForAnyPress();
 		
 		if(buttonChoice== Button.ID_LEFT){		// left for US sensor
-			
+			nav.rotate();
 			while(true){
-				nav.turnTo(angle,true);
-				usSensor.fetchSample(usData, 0);
-				distance= usData[0]*100;
-				System.out.println(distance);
+				
+				System.out.println(SensorPoller.getValueUS());
+				
 			}
 			
 		
 		} else if(buttonChoice== Button.ID_RIGHT){		// right for color sensor
+			nav.turnTo(angle,true);
 			
 			while(true){
-				nav.turnTo(angle,true);
-				colorSensor.fetchSample(colorData, 0);
-				distance =colorData[0]*100;
-				System.out.println(distance);
+				
+				//colorSensor.fetchSample(colorData, 0);
+				//distance =colorData[0]*100;
+				//System.out.println(distance);
+				if(odo.getTheta()>89)
+					break;
+					
 			}
 			
 		}

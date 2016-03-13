@@ -8,25 +8,21 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 
 public class Navigation extends Thread {
-	private static final Object lock = new Object();
+	
 	private static final int FORWARD_STRAIGHT = 175; 
-	private static final int ROTATE_SPEED = 75;
+	private static final int ROTATE_SPEED = 150;
 	private static double currentT = 0;
 	private EV3LargeRegulatedMotor leftMotor;
 	private EV3LargeRegulatedMotor rightMotor;
-	static Odometer odometer;
+	private Odometer odometer;
 	private static final double leftRadius = 2.1;
 	private static final double rightRadius =2.1;
 	private static final double width = 15;
-	private double xnow;
-	private double ynow;
-	private double tnow;
-	public static boolean navigationCalled = false; 
-	public static boolean turnCalled = false ;
+	private double xnow,ynow,tnow;
+	public static boolean navigationCalled = false, turnCalled = false;
 	public static final double WHEEL_RADIUS = 2.1;
 	public static final double TRACK = 16;
 	public static boolean isSensed = false; 
-	private Thread forward;
 	private final double threshold = 0.5;
 
 
@@ -35,7 +31,7 @@ public class Navigation extends Thread {
 	public Navigation(Odometer odometer){
 		this.leftMotor = odometer.getLeftMotor();
 		this.rightMotor = odometer.getRightMotor();
-		odometer = odometer;
+		this.odometer = odometer;
 		// we want the robot to move forward in a thread, for it should always be happening, except under certain conditions 
 		// We don't want the robot to move forward when it is turn (or else it would not be accurate) 
 		// we also want the robot to stop moving once it reaches the destination. 
@@ -105,6 +101,12 @@ public class Navigation extends Thread {
 //	heading is updated until you reach your exact goal. (This method will poll
 //	the odometer for information)
 	
+	public void rotate(){
+		leftMotor.setSpeed(ROTATE_SPEED);
+		rightMotor.setSpeed(ROTATE_SPEED);
+		leftMotor.forward();
+		rightMotor.backward();
+	}
 	
 	public void turnTo(double theta, boolean returnImmediately){
 		turnCalled = true;
