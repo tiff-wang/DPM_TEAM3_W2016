@@ -8,19 +8,24 @@ import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
 
+/**
+ * Class that updates the values read from every sensor every 50ms and stores them in public variables. 
+ * @author rabbani
+ * @version 1.1
+ */
 public class SensorPoller extends Thread{
+
+	// Instantiate Sensor Ports
+	private static final Port portUs = LocalEV3.get().getPort("S3");
+	private static final Port portColorFront = LocalEV3.get().getPort("S1");
+	private static final Port portColorBack = LocalEV3.get().getPort("S4");
+	private static final Port portColorLauncher = LocalEV3.get().getPort("S2");
 	
 	// Sensor values that are constantly being updated
 	private static int valueUs;
 	private static float valueColorFront;
 	private static float valueColorBack;
 	private static float valueColorLauncher;
-
-	// Instantiate Sensor Ports
-	private static final Port portUs = LocalEV3.get().getPort("S1");
-	private static final Port portColorFront = LocalEV3.get().getPort("S4");
-	private static final Port portColorBack = LocalEV3.get().getPort("S3");
-	private static final Port portColorLauncher = LocalEV3.get().getPort("S2");
 
 	// US SENSOR
 	SensorModes usSensor = new EV3UltrasonicSensor(portUs);
@@ -61,7 +66,6 @@ public class SensorPoller extends Thread{
 	}
 	
 	// Getters for the sensor values
-	
 	public static int getValueUS(){
 		return valueUs;
 	}

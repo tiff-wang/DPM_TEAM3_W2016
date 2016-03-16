@@ -4,32 +4,33 @@ import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
+/**
+ * Odometer from Nawras' Lab
+ * @author rabbani
+ *
+ */
 public class Odometer extends Thread {
-
-	// Motor variables
-	private double WHEEL_RADIUS = 2.1;
-	private double WHEEL_WIDTH = 13.5;
-	private final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-	private final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
-
-	// Odometry variables
+	
+	// Robot Specifications
+	private double WHEEL_RADIUS;
+	private double WHEEL_WIDTH;
+	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
+	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+	
+	// Odometry Variables
 	private static final int ODOMETER_PERIOD = 25;
-	private static int previousTachoL;
-	private static int previousTachoR;
-	private static int currentTachoL;
-	private static int currentTachoR;
+	private static int previousTachoL;         
+	private static int previousTachoR;        
+	private static int currentTachoL;          
+	private static int currentTachoR;          
 	private double x, y, theta;
-
-	// Lock object for mutual exclusion
 	public Object lock;
 
-	// default constructor
 	public Odometer() {
-
 		x = 0.0;
 		y = 0.0;
 		theta = 0.0;
-		lock = new Object();
+		lock = new Object();;
 
 		leftMotor.resetTachoCount();
 		rightMotor.resetTachoCount();
@@ -39,23 +40,13 @@ public class Odometer extends Thread {
 		currentTachoL = 0;
 		currentTachoR = 0;
 
-		LCD.clear();
-		LCD.drawString("Odometer Demo", 0, 0, false);
-		LCD.drawString("Current X  ", 0, 4, false);
-		LCD.drawString("Current Y  ", 0, 5, false);
-		LCD.drawString("Current T  ", 0, 6, false);
-
 	}
 
-	// run method (required for Thread)
 	public void run() {
-
 		long updateStart, updateEnd;
 
 		while (true) {
-
 			updateStart = System.currentTimeMillis();
-
 			double leftDistance, rightDistance, deltaDistance, deltaTheta, dX, dY;
 			currentTachoL = leftMotor.getTachoCount();
 			currentTachoR = rightMotor.getTachoCount();
@@ -70,7 +61,6 @@ public class Odometer extends Thread {
 			deltaTheta = (leftDistance - rightDistance) / WHEEL_WIDTH;
 
 			synchronized (lock) {
-
 				theta = (theta + deltaTheta) % (2 * Math.PI);
 
 				dX = deltaDistance * Math.sin(theta);
@@ -90,37 +80,20 @@ public class Odometer extends Thread {
 		}
 	}
 
-	// NOT SURE WHY THERE ARE 2 getPositions HERE, we will only use one
-	public void getPosition(double[] position) {
-		synchronized (lock) {
-			position[0] = x;
-			position[1] = y;
-			position[2] = theta / (2 * Math.PI) * 360;
-		}
-	}
-
-	public void getPosition2(double[] position, boolean[] update) {
-		synchronized (lock) {
-			if (update[0])
-				position[0] = x;
-			if (update[1])
-				position[1] = y;
-			if (update[2])
-				position[2] = theta;
-		}
-	}
-
-	// Accessor to Motor Variables
+	/**
+	 * Accessors
+	 */
+	
 	public EV3LargeRegulatedMotor[] getMotors() {
-		return new EV3LargeRegulatedMotor[] { this.leftMotor, this.rightMotor };
+		return new EV3LargeRegulatedMotor[] { Odometer.leftMotor, Odometer.rightMotor };
 	}
 
 	public EV3LargeRegulatedMotor getLeftMotor() {
-		return this.leftMotor;
+		return Odometer.leftMotor;
 	}
 
 	public EV3LargeRegulatedMotor getRightMotor() {
-		return this.rightMotor;
+		return Odometer.rightMotor;
 	}
 
 	public double get_WHEEL_RADIUS() {
@@ -131,7 +104,13 @@ public class Odometer extends Thread {
 		return this.WHEEL_WIDTH;
 	}
 
-	// Getter for X,Y,Theta
+	public void getPosition(double[] position) {
+		synchronized (lock) {
+			position[0] = x;
+			position[1] = y;
+			position[2] = theta / (2 * Math.PI) * 360;
+		}
+	}
 
 	public double getX() {
 		double result;
@@ -163,7 +142,10 @@ public class Odometer extends Thread {
 		return result;
 	}
 
-	// Mutators for Position, X, Y, Theta
+	/**
+	 * Mutators
+	 */
+	
 	public void setPosition(double[] position, boolean[] update) {
 		synchronized (lock) {
 			if (update[0])

@@ -10,44 +10,35 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
-
+/**
+ * Main class, from where the user can decide to run tests, execute offense strategy or execute defense strategy
+ * @author rabbani, holt
+ * @version 1.3
+ */
 public class Main {
-	
-	private static final Port usPort = LocalEV3.get().getPort("S1");		
-	//private static final Port colorPort = LocalEV3.get().getPort("S2");
-
 
 	public static void main(String[] args) {
 
 		final SensorPoller sensorPoller = new SensorPoller();
+		final Odometer odo = new Odometer();
+		final DisplayLCD display = new DisplayLCD(odo);
+		final Navigation nav = new Navigation(odo);
+		
 		sensorPoller.start();
-		Odometer odo = new Odometer();
-		Navigation nav = new Navigation(odo);
-		
-		//SensorModes color = new EV3ColorSensor(colorPort);
-		//SampleProvider colorSensor = color.getMode("Red");			// colorValue provides samples from this instance
-		//float[] colorData = new float[colorSensor.sampleSize()];			// colorData is the buffer in which data are returned
-		
-		
-		
-		float distance;
-		double angle = 200;
+		odo.start();
+		nav.start();
 		
 		LCD.drawString("< Left	| 	Right >	", 0, 0);
 		int buttonChoice = Button.waitForAnyPress();
+		display.start();
 		
 		if(buttonChoice== Button.ID_LEFT){		// left for US sensor
-			nav.rotate();
-			while(true){
-				
-				System.out.println(SensorPoller.getValueUS());
-				System.out.println(" ");
-				
-			}
+			
+			nav.rotate(true);
 			
 		
 		} else if(buttonChoice== Button.ID_RIGHT){		// right for color sensor
-			nav.rotate();
+			nav.rotate(true);
 			
 			while(true){
 	
