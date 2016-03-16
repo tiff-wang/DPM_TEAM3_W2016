@@ -47,12 +47,6 @@ public class Odometer extends Thread {
 		currentTachoL = 0;
 		currentTachoR = 0;
 
-		LCD.clear();
-		LCD.drawString("Odometer Demo",0,0,false);
-		LCD.drawString("Current X  ",0,4,false);
-		LCD.drawString("Current Y  ",0,5,false);
-		LCD.drawString("Current T  ",0,6,false);
-
 	}
 
 	// run method (required for Thread)
