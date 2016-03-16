@@ -34,7 +34,7 @@ public class LocalizationUS{
 			//if the robot is not facing the wall, turn around
 			distance = SensorPoller.getValueUS();
 			if((distance) > WALL_DISTANCE){
-				odo.getPosition(position);
+				odo.getPosition(position, new boolean[] { true, true, true });
 				nav.leftMotor.setSpeed(100);
 				nav.rightMotor.setSpeed(100);
 				nav.turnDegreesClockwise(position[2]+ Math.PI);
@@ -70,7 +70,7 @@ public class LocalizationUS{
 					//the distance chosen is 42 so that the robot will not be confused by the corner
 					//it corresponds to the diagonal of the 30x30 square rounded up
 					if (distance > WALL_DISTANCE){      
-						odo.getPosition(position);
+						odo.getPosition(position, new boolean[] { true, true, true });;
 						angleA = position[2];
 						angleAChecked = true;
 				}
@@ -96,7 +96,7 @@ public class LocalizationUS{
 					//the distance chosen is 42 so that the robot will not be confused by the corner
 					//it corresponds to the diagonal of the 30x30 square rounded up
 					if (distance > WALL_DISTANCE){      
-						odo.getPosition(position);
+						odo.getPosition(position, new boolean[] { true, true, true });
 						try{
 						angleB = position[2];
 						}

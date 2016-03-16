@@ -34,7 +34,8 @@ public class Main {
 		
 		if(buttonChoice== Button.ID_LEFT){		// left for US sensor
 			
-			nav.rotate(true);
+			nav.goForward(20);
+			nav.turnDegreesClockwise(90);
 			
 		
 		} else if(buttonChoice== Button.ID_RIGHT){		// right for color sensor
@@ -49,8 +50,8 @@ public class Main {
 			
 		}
 
-		buttonChoice = Button.waitForAnyPress();
-		Button.waitForAnyPress();
+		while (Button.waitForAnyPress() != Button.ID_ESCAPE)
+			;
 		System.exit(0);
 	}
 

@@ -4,33 +4,40 @@ import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
-/**
- * Odometer from Nawras' Lab
- * @author rabbani
- *
+/*
+ * Odometer.java
+ * 
+ * Odometer used throughout this project
  */
+
 public class Odometer extends Thread {
-	
-	// Robot Specifications
-	private double WHEEL_RADIUS;
-	private double WHEEL_WIDTH;
-	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
-	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
-	
-	// Odometry Variables
+	// robot position
+	private final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
+	private final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+
+	/*constants*/
+	private double WHEEL_RADIUS = 2.07;
+	private double WHEEL_WIDTH = 12.9;
+
+	// odometer update period, in ms
 	private static final int ODOMETER_PERIOD = 25;
-	private static int previousTachoL;         
-	private static int previousTachoR;        
-	private static int currentTachoL;          
-	private static int currentTachoR;          
+	/*variables*/ 
+	private static int previousTachoL;          /* Tacho L at last sample */
+	private static int previousTachoR;          /* Tacho R at last sample */
+	private static int currentTachoL;           /* Current tacho L */
+	private static int currentTachoR;           /* Current tacho R */
 	private double x, y, theta;
+
+	// lock object for mutual exclusion
 	public Object lock;
 
+	// default constructor
 	public Odometer() {
+
 		x = 0.0;
 		y = 0.0;
 		theta = 0.0;
-		lock = new Object();;
+		lock = new Object();
 
 		leftMotor.resetTachoCount();
 		rightMotor.resetTachoCount();
@@ -40,13 +47,21 @@ public class Odometer extends Thread {
 		currentTachoL = 0;
 		currentTachoR = 0;
 
+		LCD.clear();
+		LCD.drawString("Odometer Demo",0,0,false);
+		LCD.drawString("Current X  ",0,4,false);
+		LCD.drawString("Current Y  ",0,5,false);
+		LCD.drawString("Current T  ",0,6,false);
+
 	}
 
+	// run method (required for Thread)
 	public void run() {
 		long updateStart, updateEnd;
 
 		while (true) {
 			updateStart = System.currentTimeMillis();
+			// put (some of) your odometer code here
 			double leftDistance, rightDistance, deltaDistance, deltaTheta, dX, dY;
 			currentTachoL = leftMotor.getTachoCount();
 			currentTachoR = rightMotor.getTachoCount();
@@ -61,7 +76,8 @@ public class Odometer extends Thread {
 			deltaTheta = (leftDistance - rightDistance) / WHEEL_WIDTH;
 
 			synchronized (lock) {
-				theta = (theta + deltaTheta) % (2 * Math.PI);
+				// don't use the variables x, y, or theta anywhere but here!
+				theta += deltaTheta;
 
 				dX = deltaDistance * Math.sin(theta);
 				dY = deltaDistance * Math.cos(theta);
@@ -70,32 +86,34 @@ public class Odometer extends Thread {
 				y += dY;
 			}
 
+			// this ensures that the odometer only runs once every period
 			updateEnd = System.currentTimeMillis();
 			if (updateEnd - updateStart < ODOMETER_PERIOD) {
 				try {
 					Thread.sleep(ODOMETER_PERIOD - (updateEnd - updateStart));
 				} catch (InterruptedException e) {
+					// there is nothing to be done here because it is not
+					// expected that the odometer will be interrupted by
+					// another thread
 				}
 			}
 		}
 	}
 
-	/**
-	 * Accessors
-	 */
-	
+	// accessors
 	public EV3LargeRegulatedMotor[] getMotors() {
-		return new EV3LargeRegulatedMotor[] { Odometer.leftMotor, Odometer.rightMotor };
+		return new EV3LargeRegulatedMotor[] { this.leftMotor, this.rightMotor };
 	}
 
 	public EV3LargeRegulatedMotor getLeftMotor() {
-		return Odometer.leftMotor;
+		return this.leftMotor;
 	}
 
 	public EV3LargeRegulatedMotor getRightMotor() {
-		return Odometer.rightMotor;
+		return this.rightMotor;
 	}
 
+	// accessor to wheel radius and width
 	public double get_WHEEL_RADIUS() {
 		return this.WHEEL_RADIUS;
 	}
@@ -103,12 +121,15 @@ public class Odometer extends Thread {
 	public double get_WHEEL_WIDTH() {
 		return this.WHEEL_WIDTH;
 	}
-
-	public void getPosition(double[] position) {
+	public void getPosition(double[] position, boolean[] update) {
+		// ensure that the values don't change while the odometer is running
 		synchronized (lock) {
-			position[0] = x;
-			position[1] = y;
-			position[2] = theta / (2 * Math.PI) * 360;
+			if (update[0])
+				position[0] = x;
+			if (update[1])
+				position[1] = y;
+			if (update[2])
+				position[2] = theta / (2 * 3.141592) * 360;
 		}
 	}
 
@@ -142,18 +163,16 @@ public class Odometer extends Thread {
 		return result;
 	}
 
-	/**
-	 * Mutators
-	 */
-	
+	// mutators
 	public void setPosition(double[] position, boolean[] update) {
+		// ensure that the values don't change while the odometer is running
 		synchronized (lock) {
 			if (update[0])
 				x = position[0];
 			if (update[1])
 				y = position[1];
 			if (update[2])
-				theta = position[2] % (2 * Math.PI);
+				theta = position[2];
 		}
 	}
 
@@ -171,7 +190,7 @@ public class Odometer extends Thread {
 
 	public void setTheta(double theta) {
 		synchronized (lock) {
-			this.theta = theta % (2 * Math.PI);
+			this.theta = theta;
 		}
 	}
 }
