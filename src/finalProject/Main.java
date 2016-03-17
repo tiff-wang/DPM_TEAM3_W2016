@@ -23,6 +23,7 @@ public class Main {
 		final Odometer odo = new Odometer();
 		final DisplayLCD display = new DisplayLCD(odo);
 		final Navigation nav = new Navigation(odo);
+		final LocalizationUS loc = new LocalizationUS(odo, nav);
 		
 		sensorPoller.start();
 		odo.start();
@@ -34,20 +35,16 @@ public class Main {
 		
 		if(buttonChoice== Button.ID_LEFT){		// left for US sensor
 			
+			nav.travelTo(50, 50);
+			
 			nav.goForward(20);
 			nav.turnDegreesClockwise(90);
 			
 		
 		} else if(buttonChoice== Button.ID_RIGHT){		// right for color sensor
-			nav.rotate(true);
-			
-			while(true){
-	
-			System.out.println(SensorPoller.getValueColorFront());
-			System.out.println(" ");
-					
-			}
-			
+
+			loc.doLocalization();
+
 		}
 
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE)

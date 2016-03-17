@@ -36,19 +36,14 @@ public class DisplayLCD extends Thread {
 			for (int i = 0; i < 3; i++) {
 				LCD.drawString(formattedDoubleToString(position[i], 2), 3, i);
 			}
-		  //ColorSensor cs = new ColorSensor(SensorPort.S1);
-		  //Color color = cs.getColor();
-		  //displays theta values
-		  LCD.drawString("Theta = " + Double.toString(theta), 0, 3);
-			// throttle the OdometryDisplay
+
+		// throttle the OdometryDisplay
 			displayEnd = System.currentTimeMillis();
 			if (displayEnd - displayStart < DISPLAY_PERIOD) {
 				try {
 					Thread.sleep(DISPLAY_PERIOD - (displayEnd - displayStart));
 				} catch (InterruptedException e) {
-					// there is nothing to be done here because it is not
-					// expected that OdometryDisplay will be interrupted
-					// by another thread
+
 				}
 			}
 		}
