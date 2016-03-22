@@ -37,12 +37,13 @@ public class SensorPoller extends Thread{
 	SampleProvider colorValueFront = colorSensorFront.getRGBMode();
 	float[] colorDataFront = new float[colorValueFront.sampleSize()];
 	
-	/*
+	
 	// COLOR SENSOR BACK
 	EV3ColorSensor colorSensorBack = new EV3ColorSensor(portColorBack);
-	SampleProvider colorValueBack = colorSensorBack.getRGBMode();
+	SampleProvider colorValueBack = colorSensorBack.getRedMode();
 	float[] colorDataBack = new float[colorValueBack.sampleSize()];
 
+	/*
 	// COLOR SENSOR LAUNCHER
 	EV3ColorSensor colorSensorLauncher = new EV3ColorSensor(portColorLauncher);
 	SampleProvider colorValueLauncher = colorSensorLauncher.getRGBMode();
@@ -60,7 +61,7 @@ public class SensorPoller extends Thread{
 			
 			colorSensorFront.fetchSample(colorDataFront, 0);
 			valueColorFront=(float)(colorDataFront[0]*100.0);			
-			
+			valueColorBack = (float)(colorDataBack[0]*100.0);	
 			try { Thread.sleep(50); } catch(Exception e){}			
 		}
 	}
@@ -73,7 +74,9 @@ public class SensorPoller extends Thread{
 	public static float getValueColorFront() {
 		return valueColorFront;
 	}
-	
+	public static float getValueColorBack() {
+		return valueColorBack;
+	}
 }
 	
 

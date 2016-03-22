@@ -140,5 +140,8 @@ public class Navigation extends Thread  {
 	public int getSPEED_ROTATE() {
 		return SPEED_ROTATE;
 	}
+	public int getSPEED_LOCALIZE() {
+		return SPEED_LOCALIZE;
+	}
 
 }

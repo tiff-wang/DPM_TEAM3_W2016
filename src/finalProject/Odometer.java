@@ -16,7 +16,7 @@ public class Odometer extends Thread {
 
 	/*constants*/
 	private double WHEEL_RADIUS = 2.07;
-	private double WHEEL_WIDTH = 12.9;
+	private double WHEEL_WIDTH = 17.6;
 
 	// odometer update period, in ms
 	private static final int ODOMETER_PERIOD = 25;
@@ -67,10 +67,14 @@ public class Odometer extends Thread {
 
 			deltaDistance = .5 * (leftDistance + rightDistance);
 			deltaTheta = (leftDistance - rightDistance) / WHEEL_WIDTH;
-
+			
 			synchronized (lock) {
 				// don't use the variables x, y, or theta anywhere but here!
 				theta += deltaTheta;
+				if(theta > Math.PI*2)
+					theta= 0.001;
+				if(theta <0)
+					theta = Math.PI*2 - theta;
 
 				dX = deltaDistance * Math.sin(theta);
 				dY = deltaDistance * Math.cos(theta);
@@ -180,10 +184,29 @@ public class Odometer extends Thread {
 			this.y = y;
 		}
 	}
+	public double angleDegreeCorrection(double number) {
+		if(number > 360)
+			number -= 360;
+		else if(number <0)
+			number += 360;
+		return number;
+	
+	}
+	public double degreesToRadian(double number) {
+		number = number/360*2*Math.PI;
+		return number;
+	
+	}
+	public double radianToDegree(double number) {
+		number = number/(2*Math.PI)*360;
+		return number;
+	
+	}
 
 	public void setTheta(double theta) {
 		synchronized (lock) {
 			this.theta = theta;
 		}
+	
 	}
 }
