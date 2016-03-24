@@ -3,21 +3,17 @@ package finalProject;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
-/*
- * Odometer.java
- * 
- * Odometer used throughout this project
- */
-
 public class Odometer extends Thread {
+	
+	// Variable to tell if robot is near a corner
+	static boolean nearCorner;
+	
 	// robot position
 	private final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
-
 	/*constants*/
 	private double WHEEL_RADIUS = 2.07;
 	private double WHEEL_WIDTH = 17.6;
-
 	// odometer update period, in ms
 	private static final int ODOMETER_PERIOD = 25;
 	/*variables*/ 
@@ -26,10 +22,8 @@ public class Odometer extends Thread {
 	private static int currentTachoL;           /* Current tacho L */
 	private static int currentTachoR;           /* Current tacho R */
 	private double x, y, theta, Theta=0;
-
 	// lock object for mutual exclusion
 	public Object lock;
-
 	// default constructor
 	public Odometer() {
 
@@ -53,6 +47,16 @@ public class Odometer extends Thread {
 		long updateStart, updateEnd;
 
 		while (true) {
+			
+			//check if we are near a corner
+			if ( x < 45 || x > 265 || y < 45 || y > 265)
+			{
+				nearCorner = true;
+			}
+			else{
+				nearCorner = false;
+			}
+			
 			updateStart = System.currentTimeMillis();
 			// put (some of) your odometer code here
 			double leftDistance, rightDistance, deltaDistance, deltaTheta, dX, dY;

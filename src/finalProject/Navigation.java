@@ -7,6 +7,11 @@ public class Navigation extends Thread  {
 	private static final int SPEED_FORWARD = 250;
 	private static final int SPEED_ROTATE = 150;
 	private static final int SPEED_LOCALIZE = 100;
+	private static final int WALL_DISTANCE = 40;
+	
+	private static double targetX;
+	private static double targetY;
+	
 
 	public double thetar, xr, yr;
 	private boolean navigating;
@@ -25,6 +30,28 @@ public class Navigation extends Thread  {
 		this.rightMotor = odo.getRightMotor();
 		navigating = false;
 	}
+	
+	public void run() {
+		
+		int distance = SensorPoller.getValueUS();
+			
+			while (true) {
+				
+				distance = SensorPoller.getValueUS();
+				
+				if (distance < WALL_DISTANCE && Odometer.nearCorner == false){
+				}
+				turnDegreesClockwise(90);
+				goForward(45);
+				turnDegreesClockwise(-90);
+				goForward(45);
+				turnDegreesClockwise(-90);
+				goForward(45);
+				turnDegreesClockwise(90);
+				goForward(45);
+				travelTo(targetX,targetY);
+				}
+			}
 
 	/**
 	 * Order the robot to move to a position
@@ -36,6 +63,8 @@ public class Navigation extends Thread  {
 	 * @param Y Coordinate of destination
 	 */
 	public void travelTo (double x, double y){
+		Navigation.targetX = x;
+		Navigation.targetY = y;
 		//gets position. Synchronized to avoid collision
 		synchronized (odo.lock) {
 			thetar = odo.getTheta() * 180 / Math.PI;
