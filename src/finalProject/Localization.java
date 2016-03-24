@@ -41,20 +41,20 @@ public class Localization {
 		doUSLocalization();
 		doLightLocalization();
 		
-		int position = Main.getParameter(0);
+		int corner = Main.getParameter(0);
 		
-		switch(position){						//update odometer position to the coordinate axis relative to board
+		switch(corner){						//update odometer position to the coordinate axis relative to board
 		case 1:  
 			break;
 		case 2:
-			odo.setX(odo.getX()+30*11);
+			odo.setX(-1*odo.getX()+30*10);
 			break;
 		case 3:
-			odo.setX(odo.getX()+30*11);
-			odo.setY(odo.getY()+30*11);
+			odo.setX(-1*odo.getX()+30*10);
+			odo.setY(-1*odo.getY()+30*10);
 			break;
 		case 4:
-			odo.setY(odo.getY()+30*11);
+			odo.setY(-1*odo.getY()+30*10);
 			break;
 		}
 	}
