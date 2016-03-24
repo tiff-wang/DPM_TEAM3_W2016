@@ -25,7 +25,7 @@ public class Odometer extends Thread {
 	private static int previousTachoR;          /* Tacho R at last sample */
 	private static int currentTachoL;           /* Current tacho L */
 	private static int currentTachoR;           /* Current tacho R */
-	private double x, y, theta;
+	private double x, y, theta, Theta=0;
 
 	// lock object for mutual exclusion
 	public Object lock;
@@ -68,19 +68,20 @@ public class Odometer extends Thread {
 			deltaDistance = .5 * (leftDistance + rightDistance);
 			deltaTheta = (leftDistance - rightDistance) / WHEEL_WIDTH;
 			
+			Theta += deltaTheta;
+			if(Theta > Math.PI*2)
+				Theta= 0;
+			if(Theta <0)
+				Theta = Math.PI*2 - Theta;
+			dX = deltaDistance * Math.sin(Theta);
+			dY = deltaDistance * Math.cos(Theta);
 			synchronized (lock) {
 				// don't use the variables x, y, or theta anywhere but here!
-				theta += deltaTheta;
-				if(theta > Math.PI*2)
-					theta= 0.001;
-				if(theta <0)
-					theta = Math.PI*2 - theta;
-
-				dX = deltaDistance * Math.sin(theta);
-				dY = deltaDistance * Math.cos(theta);
+				
 
 				x += dX;
 				y += dY;
+				theta =Theta;
 			}
 
 			// this ensures that the odometer only runs once every period

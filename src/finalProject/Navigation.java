@@ -60,6 +60,9 @@ public class Navigation extends Thread  {
 
 		goForward(distance);
 	}
+	public void travelToCoord(int x, int y){
+		travelTo(30*x,30*y);
+	}
 
 	public void goForward(double distance){
 		// drive forward 

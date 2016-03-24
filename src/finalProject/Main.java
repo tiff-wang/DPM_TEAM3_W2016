@@ -16,6 +16,7 @@ import lejos.robotics.SampleProvider;
  * @version 1.3
  */
 public class Main {
+	public static int [] parameters={1,0,3,3,3,10,3,11,6,1};
 
 	public static void main(String[] args) {
 
@@ -24,6 +25,7 @@ public class Main {
 		final DisplayLCD display = new DisplayLCD(odo);
 		final Navigation nav = new Navigation(odo);
 		final Localization loc = new Localization(odo, nav);
+		
 		
 		sensorPoller.start();
 		odo.start();
@@ -34,12 +36,17 @@ public class Main {
 		display.start();
 		
 		if(buttonChoice== Button.ID_LEFT){		// left for US sensor
-			
+			if(parameters[1]==0){
+				final Offense off = new Offense(nav,odo);
+				off.doOffense();
+			}
+			else if(parameters[1] ==1){
+				final Defense def = new Defense(nav,odo);
+				def.doDefense();
+				
+			}
 		
-			nav.turnDegreesClockwise(360);
-			nav.turnDegreesClockwise(360);
-			nav.turnDegreesClockwise(360);
-			nav.turnDegreesClockwise(360);
+			
 		
 		} else if(buttonChoice== Button.ID_RIGHT){		// right for color sensor
 
@@ -53,5 +60,7 @@ public class Main {
 		System.exit(0);
 	}
 
-	
+	public static int getParameter(int index){
+		return parameters[index];
+	}
 }

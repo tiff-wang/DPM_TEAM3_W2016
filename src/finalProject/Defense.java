@@ -6,10 +6,20 @@ package finalProject;
  * @version 0.1
  */
 public class Defense {
-
+	private Odometer odo;
+	private Navigation nav;
+	
+	public Defense(Navigation nav,Odometer odo){
+		this.odo = odo;
+		this.nav = nav;
+	}
 	/**
 	 * patrol method, used to guard to goal
 	 */
+	public void doDefense(){
+		
+	}
+	
 	public void patrol(){
 		
 		// must develop random way to patrol goal
