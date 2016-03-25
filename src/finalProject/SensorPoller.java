@@ -25,8 +25,8 @@ public class SensorPoller extends Thread{
 	private static int valueUs;
 	private static float valueColorFront;
 	private static float valueColorBack;
-	private static float valueColorLauncher;
-
+	private static float valueColorLauncherRed;
+	private static float valueColorLauncherBlue;
 	// US SENSOR
 	SensorModes usSensor = new EV3UltrasonicSensor(portUs);
 	SampleProvider usValue = usSensor.getMode("Distance");
@@ -43,12 +43,12 @@ public class SensorPoller extends Thread{
 	SampleProvider colorValueBack = colorSensorBack.getRedMode();
 	float[] colorDataBack = new float[colorValueBack.sampleSize()];
 
-	/*
+
 	// COLOR SENSOR LAUNCHER
 	EV3ColorSensor colorSensorLauncher = new EV3ColorSensor(portColorLauncher);
 	SampleProvider colorValueLauncher = colorSensorLauncher.getRGBMode();
 	float[] colorDataLauncher = new float[colorValueLauncher.sampleSize()];
-	*/
+	
 	
 	public void run() {
 		
@@ -60,8 +60,15 @@ public class SensorPoller extends Thread{
 				valueUs = 255;	
 			
 			colorSensorFront.fetchSample(colorDataFront, 0);
-			valueColorFront=(float)(colorDataFront[0]*100.0);			
-			valueColorBack = (float)(colorDataBack[0]*100.0);	
+			valueColorFront=(float)(colorDataFront[0]*100.0);	
+			
+			colorSensorBack.fetchSample(colorDataBack, 0);
+			valueColorBack = (float)(colorDataBack[0]*100.0);
+			
+			colorSensorLauncher.fetchSample(colorDataLauncher, 0);
+			colorSensorLauncher.fetchSample(colorDataLauncher, 2);
+			valueColorLauncherRed = (float)(colorDataLauncher[0]*100.0);
+			valueColorLauncherBlue = (float)(colorDataLauncher[2]*100.0);
 			try { Thread.sleep(50); } catch(Exception e){}			
 		}
 	}
@@ -76,6 +83,12 @@ public class SensorPoller extends Thread{
 	}
 	public static float getValueColorBack() {
 		return valueColorBack;
+	}
+	public static float getRedValueColorLauncher() {
+		return valueColorLauncherRed;
+	}
+	public static float getBlueValueColorLauncher() {
+		return valueColorLauncherBlue;
 	}
 }
 	

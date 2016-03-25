@@ -41,7 +41,7 @@ public class Navigation extends Thread  {
 				
 				if (distance < WALL_DISTANCE && Odometer.nearCorner == false){
 				}
-				turnDegreesClockwise(90);
+				turnDegreesClockwise(90);				
 				goForward(45);
 				turnDegreesClockwise(-90);
 				goForward(45);

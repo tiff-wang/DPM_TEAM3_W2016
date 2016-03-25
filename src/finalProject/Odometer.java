@@ -11,6 +11,8 @@ public class Odometer extends Thread {
 	// robot position
 	private final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+	private final EV3LargeRegulatedMotor launchMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
+	private final EV3LargeRegulatedMotor pickUpMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
 	/*constants*/
 	private double WHEEL_RADIUS = 2.07;
 	private double WHEEL_WIDTH = 17.6;
@@ -49,7 +51,7 @@ public class Odometer extends Thread {
 		while (true) {
 			
 			//check if we are near a corner
-			if ( x < 45 || x > 265 || y < 45 || y > 265)
+			if ( (x < 15 || x > 285) && (y < 15 || y > 285))
 			{
 				nearCorner = true;
 			}
@@ -113,6 +115,12 @@ public class Odometer extends Thread {
 
 	public EV3LargeRegulatedMotor getRightMotor() {
 		return this.rightMotor;
+	}
+	public EV3LargeRegulatedMotor getLaunchMotor() {
+		return this.launchMotor;
+	}
+	public EV3LargeRegulatedMotor getPickUpMotor() {
+		return this.pickUpMotor;
 	}
 
 	// accessor to wheel radius and width
