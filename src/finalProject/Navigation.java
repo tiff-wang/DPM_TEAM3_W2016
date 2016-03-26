@@ -1,5 +1,7 @@
 package finalProject;
 
+import lejos.hardware.Sound;
+import lejos.hardware.Sounds;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation extends Thread  {
@@ -7,11 +9,10 @@ public class Navigation extends Thread  {
 	private static final int SPEED_FORWARD = 250;
 	private static final int SPEED_ROTATE = 150;
 	private static final int SPEED_LOCALIZE = 100;
-	private static final int WALL_DISTANCE = 40;
+	private static final int WALL_DISTANCE = 20;
 	
 	private static double targetX;
 	private static double targetY;
-	
 
 	public double thetar, xr, yr;
 	private boolean navigating;
@@ -33,25 +34,35 @@ public class Navigation extends Thread  {
 	
 	public void run() {
 		
-		int distance = SensorPoller.getValueUS();
+		int distance;
+		int usFilter=0;
 			
 			while (true) {
 				
 				distance = SensorPoller.getValueUS();
+				if (distance < WALL_DISTANCE){
+					usFilter++;
+				}
 				
-				if (distance < WALL_DISTANCE && Odometer.nearCorner == false){
-				}
+				if (distance < WALL_DISTANCE && Odometer.nearCorner == false && usFilter > 15){
+				Sound.beepSequenceUp();
 				turnDegreesClockwise(90);				
-				goForward(45);
+				goForward(15,false);
 				turnDegreesClockwise(-90);
-				goForward(45);
+				goForward(45,false);
 				turnDegreesClockwise(-90);
-				goForward(45);
+				goForward(15,false);
 				turnDegreesClockwise(90);
-				goForward(45);
 				travelTo(targetX,targetY);
+				Sound.beepSequenceUp();
+				Sound.beepSequence();
+				usFilter=0;
 				}
+				
+				try { Thread.sleep(50); } catch(Exception e){}
+				
 			}
+	}
 
 	/**
 	 * Order the robot to move to a position
@@ -63,8 +74,8 @@ public class Navigation extends Thread  {
 	 * @param Y Coordinate of destination
 	 */
 	public void travelTo (double x, double y){
-		Navigation.targetX = x;
-		Navigation.targetY = y;
+		targetX = x;
+		targetY = y;
 		//gets position. Synchronized to avoid collision
 		synchronized (odo.lock) {
 			thetar = odo.getTheta() * 180 / Math.PI;
@@ -87,13 +98,13 @@ public class Navigation extends Thread  {
 		else turnDegreesClockwise(theta);
 		//updates values to display
 
-		goForward(distance);
+		goForward(distance, true);
 	}
 	public void travelToTile(int x, int y){
 		travelTo(30*x,30*y);
 	}
 
-	public void goForward(double distance){
+	public void goForward(double distance, boolean returnImmediately){
 		// drive forward 
 		leftMotor.setSpeed(SPEED_FORWARD);
 		rightMotor.setSpeed(SPEED_FORWARD);
@@ -102,8 +113,8 @@ public class Navigation extends Thread  {
 		navigating = true;
 
 		leftMotor.rotate(convertDistance(WHEEL_RADIUS, distance), true);
-		rightMotor.rotate(convertDistance(WHEEL_RADIUS, distance), false);
-
+		rightMotor.rotate(convertDistance(WHEEL_RADIUS, distance), returnImmediately);
+		
 		navigating = false;
 	}
 

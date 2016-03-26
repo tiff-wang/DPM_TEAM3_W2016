@@ -12,8 +12,9 @@ public class Offense {
 	private double redBallValue = 0.2;
 	private double redColorMargin = 0.08;
 	private int sweepAngle = 225;			// initial sweep of arm to bring ball up to sensor
-	private int keepBallAngle = 30;			// if ball is desired color then push further up into trough 
+	private int keepBallAngle = 40;			// if ball is desired color then push further up into trough 
 	private int ballCount = 0;
+	private int pickUpspeed = 45;
 	public Offense(Navigation nav,Odometer odo){
 		this.odo = odo;
 		this.nav = nav;
@@ -45,22 +46,22 @@ public class Offense {
 	
 	}
 	public void pickUpBall(){
-
-		launchMotor.rotate(sweepAngle);
+		pickUpMotor.setSpeed(pickUpspeed);
+		pickUpMotor.rotate(sweepAngle);
 	
 		int desiredBallType = Main.getParameter(9);
 		if(desiredBallType==0){
-			ballCount++;
+			
 			detectRedBall();
 		}
 		else if(desiredBallType==1){
-			ballCount++;
+			
 			detectBlueBall();
 		}
 		else if(desiredBallType==2){
 			ballCount++;
-			launchMotor.rotate(keepBallAngle);
-			launchMotor.rotate(-keepBallAngle-sweepAngle);
+			pickUpMotor.rotate(keepBallAngle);
+			pickUpMotor.rotate(-keepBallAngle-sweepAngle);
 			
 		}
 		
@@ -69,8 +70,9 @@ public class Offense {
 	public boolean detectRedBall(){
 		float redColorReading = SensorPoller.getRedValueColorLauncher();
 		if(redColorReading <(redBallValue+redColorMargin) && redColorReading > (redBallValue -redColorMargin)){
-			launchMotor.rotate(keepBallAngle);
-			launchMotor.rotate(-keepBallAngle-sweepAngle);
+			pickUpMotor.rotate(keepBallAngle);
+			pickUpMotor.rotate(-keepBallAngle-sweepAngle);
+			ballCount++;
 			return true;
 		}
 		else{
@@ -81,8 +83,9 @@ public class Offense {
 	public boolean detectBlueBall(){
 		float blueColorReading = SensorPoller.getBlueValueColorLauncher();
 		if(blueColorReading <(blueBallValue+blueColorMargin) && blueColorReading > (blueBallValue -blueColorMargin)){
-			launchMotor.rotate(keepBallAngle);
-			launchMotor.rotate(-keepBallAngle-sweepAngle);
+			pickUpMotor.rotate(keepBallAngle);
+			pickUpMotor.rotate(-keepBallAngle-sweepAngle);
+			ballCount++;
 			return true;
 		}
 		else{
@@ -90,26 +93,42 @@ public class Offense {
 			return false;
 		}
 	}
+	public boolean testBallPickUp1(){
+		pickUpMotor.setSpeed(pickUpspeed);
+		pickUpMotor.rotate(sweepAngle);
+		return true;
+	}
+	public boolean testBallPickUp2(){
+		pickUpMotor.setSpeed(pickUpspeed);
+		pickUpMotor.rotate(keepBallAngle);
+		pickUpMotor.rotate(-keepBallAngle-sweepAngle);
+		ballCount++;
+		return true;
+	}
+
 	
 	public void launch(){		//for now will just launch to middle of goal
-		int acceleration = 2000000;
-		int launchSpeed = 50000000;
-		int launchAngle = 95;				// angle rotated when launching
+		int acceleration = 1500;
+		int launchSpeed = 2000;
+		int launchAngle = 75;				// angle rotated when launching
 		
-		int rotateSpeed = 65;				// speed when picking up ball
-		int pickUpAngle = 45;				// angle rotated to pick up
+		int rotateSpeed = 50;				// speed when picking up ball
+		int pickUpAngle = 43;				// angle rotated to pick up
 		
-		launchMotor.setSpeed(rotateSpeed);													// set values of speed and acceleration
-		launchMotor.setAcceleration(acceleration);
+		int pickUpAcceleration = 100;
+		
+//		launchMotor.setSpeed(rotateSpeed);													// set values of speed and acceleration
+		launchMotor.setAcceleration(pickUpAcceleration);
 		launchMotor.setSpeed(rotateSpeed);													// set values of speed and acceleration
 		launchMotor.rotate(pickUpAngle,false);
-		for(int i =0; i<ballCount; i++){
-		
+//		for(int i =0; i<ballCount; i++){
+			launchMotor.setAcceleration(acceleration);
 			launchMotor.setSpeed(launchSpeed);													
 			launchMotor.rotate(launchAngle,false);
 			launchMotor.setSpeed(rotateSpeed);													// set values of speed and acceleration
-			launchMotor.rotate(360-launchAngle,false);
-		}
+			launchMotor.setAcceleration(pickUpAcceleration);
+			launchMotor.rotate(199-launchAngle - pickUpAngle,false); // corresponds to 360 degrees (the angle is different because we added gears) 
+//		}
 
 		
 	}

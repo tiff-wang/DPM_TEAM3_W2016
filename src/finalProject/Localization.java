@@ -39,8 +39,10 @@ public class Localization {
 	
 	public void doLocalization(){
 		doUSLocalization();
-		doLightLocalization();
-		
+		odo.setPosition(new double [] {0.0, 0.0, 0.0}, new boolean [] {true, true, true});
+		Sound.buzz();
+		//doLightLocalization();
+		/*
 		int corner = Main.getParameter(0);
 		
 		switch(corner){						//update odometer position to the coordinate axis relative to board
@@ -57,6 +59,7 @@ public class Localization {
 			odo.setY(-1*odo.getY()+30*10);
 			break;
 		}
+		*/
 	}
 	public void doUSLocalization(){
 		
@@ -77,33 +80,35 @@ public class Localization {
 			// angles to the right of angleB is 45 degrees past 'north'
 	
 			
-			distance = SensorPoller.getValueUS();
+			distance = maxDistance(SensorPoller.getValueUS()) ;
 			if(distance<60)
 				odo.setPosition(new double [] {0.0, 0.0, Math.PI}, new boolean [] {false, false, true});
 			while(distance < 60){ 								//turn clockwise if facing wall
 				nav.rotate(true);
-				distance = SensorPoller.getValueUS();
+				distance =  maxDistance(SensorPoller.getValueUS()) ;
 			}
 
 			while(distance > 30){
 				
 				nav.rotate(true);
-				distance = SensorPoller.getValueUS();
+				distance =  maxDistance(SensorPoller.getValueUS()) ;
 			}
-			angleA = odo.radianToDegree(odo.getTheta());
+
+			angleA = Math.toDegrees(odo.getTheta());
 			Sound.buzz();
 			
 			
 			while(distance<60){
 				nav.rotate(false);
-				distance = SensorPoller.getValueUS();
+				distance = maxDistance(SensorPoller.getValueUS()) ;
 			}
 			
 			while(distance > 30){
 				nav.rotate(false);
-				distance = SensorPoller.getValueUS();
+				distance = maxDistance(SensorPoller.getValueUS()) ;
 			}
-			angleB = odo.radianToDegree(odo.getTheta());
+	
+			angleB = Math.toDegrees(odo.getTheta());
 			Sound.buzz();
 		
 		
@@ -116,20 +121,23 @@ public class Localization {
 			
 			// angle is the new angle that we want to turn to
 			angle = odo.angleDegreeCorrection(dTheta+angleB);
+		
 			
 			odo.setPosition(new double [] {0.0, 0.0, odo.degreesToRadian(angle)}, new boolean [] {true, true, true});
 
-			
-			while(odo.getTheta()<Math.PI-0.05){
+	
+			while(odo.getTheta()<2*Math.PI-0.1){
 				nav.rotate(true);
 			}
 		
 			Sound.buzz();
-			nav.stopMotors();
+			
+			nav.turnDegreesClockwise(37);
+	
 			
 			// update the odometer position (example to follow:)
 			odo.setPosition(new double [] {0.0, 0.0, 0.0}, new boolean [] {true, true, true});
-		
+			Sound.buzz();
 	}
 	public void doLightLocalization(){
 		float sample_int;
@@ -204,7 +212,12 @@ public class Localization {
 		odo.setY(Y);
 	}
 	
-	
+	private double maxDistance (double distance){
+		if (distance > 60){
+			distance = 60;
+		}
+		return distance;
+	}
 	
 	
 	

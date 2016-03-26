@@ -29,17 +29,20 @@ public class Main {
 		
 		sensorPoller.start();
 		odo.start();
-		nav.start();
+		//nav.start();
 		
 		LCD.drawString("< Left	| 	Right >	", 0, 0);
 		int buttonChoice = Button.waitForAnyPress();
 		display.start();
-		
+		final Offense off = new Offense(nav,odo);
 		if(buttonChoice== Button.ID_LEFT){		// left for US sensor
+			
 			if(parameters[1]==0){
-				final Offense off = new Offense(nav,odo);
-				off.doOffense();
+			
+				off.testBallPickUp1();
+				
 			}
+			
 			else if(parameters[1] ==1){
 				final Defense def = new Defense(nav,odo);
 				def.doDefense();
@@ -47,6 +50,10 @@ public class Main {
 			}
 		
 			
+			buttonChoice = Button.waitForAnyPress();
+			if(buttonChoice == Button.ID_LEFT)
+				off.testBallPickUp2();
+
 		
 		} else if(buttonChoice== Button.ID_RIGHT){		// right for color sensor
 
@@ -54,7 +61,7 @@ public class Main {
 			
 
 		}
-
+		
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE)
 			;
 		System.exit(0);

@@ -7,7 +7,8 @@ public class Odometer extends Thread {
 	
 	// Variable to tell if robot is near a corner
 	static boolean nearCorner;
-	
+	static int cornerStarts = 30;
+	static int cornerEnds = 150;
 	// robot position
 	private final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
@@ -51,7 +52,10 @@ public class Odometer extends Thread {
 		while (true) {
 			
 			//check if we are near a corner
-			if ( (x < 15 || x > 285) && (y < 15 || y > 285))
+			if ( (x < cornerStarts && y < cornerStarts) || 
+				 (x < cornerStarts && y > cornerEnds) ||
+				 (x > cornerEnds && y < cornerStarts) ||
+				 (x > cornerStarts && y > cornerEnds))		 
 			{
 				nearCorner = true;
 			}
