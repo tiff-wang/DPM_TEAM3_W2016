@@ -18,7 +18,7 @@ import lejos.robotics.SampleProvider;
 public class Main {
 	public static int [] parameters={1,0,3,3,3,10,3,11,6,1};
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 
 		final SensorPoller sensorPoller = new SensorPoller();
 		final Odometer odo = new Odometer();
@@ -37,6 +37,8 @@ public class Main {
 		final Offense off = new Offense(nav,odo);
 		if(buttonChoice== Button.ID_LEFT){		// left for US sensor
 			
+			nav.travelToCorner(3);
+			/*
 			if(parameters[1]==0){
 			
 				off.testBallPickUp1();
@@ -48,7 +50,7 @@ public class Main {
 				def.doDefense();
 				
 			}
-		
+		*/
 			
 			buttonChoice = Button.waitForAnyPress();
 			if(buttonChoice == Button.ID_LEFT)
@@ -58,6 +60,7 @@ public class Main {
 		} else if(buttonChoice== Button.ID_RIGHT){		// right for color sensor
 
 			loc.doLocalization();
+			loc.doLightLocalization();
 			
 
 		}

@@ -5,10 +5,14 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Odometer extends Thread {
 	
-	// Variable to tell if robot is near a corner
-	static boolean nearCorner;
-	static int cornerStarts = 30;
-	static int cornerEnds = 150;
+	// Corners coordinates
+	public static final int[] X1 = { 0, 0 };
+	public static final int[] X2 = { 0, 210 };
+	public static final int[] X3 = { 210, 210 };
+	public static final int[] X4 = { 210, 0 };
+	public static final int cornerBuffer = 30;
+	public static int nearCorner = 0;
+	
 	// robot position
 	private final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
@@ -52,17 +56,23 @@ public class Odometer extends Thread {
 		while (true) {
 			
 			//check if we are near a corner
-			if ( (x < cornerStarts && y < cornerStarts) || 
-				 (x < cornerStarts && y > cornerEnds) ||
-				 (x > cornerEnds && y < cornerStarts) ||
-				 (x > cornerStarts && y > cornerEnds))		 
-			{
-				nearCorner = true;
+			if (x < X1[0]+cornerBuffer && y < X1[1]+cornerBuffer){
+				nearCorner = 1;
 			}
-			else{
-				nearCorner = false;
+			else if (x < X2[0]+cornerBuffer && y > X2[1]-cornerBuffer){
+				nearCorner = 2;
 			}
-			
+			else if (x > X3[0]-cornerBuffer && y > X3[1]-cornerBuffer){
+				nearCorner = 3;
+			}
+			else if (x > X4[0]-cornerBuffer && y < X4[1]+cornerBuffer){
+				nearCorner = 4;
+			}
+			else {
+				nearCorner = 0;
+			}
+					
+					
 			updateStart = System.currentTimeMillis();
 			// put (some of) your odometer code here
 			double leftDistance, rightDistance, deltaDistance, deltaTheta, dX, dY;
