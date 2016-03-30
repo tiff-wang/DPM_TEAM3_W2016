@@ -69,99 +69,6 @@ public class Navigation extends Thread {
 		}
 	}
 
-	public void travelToCorner(int corner) throws InterruptedException{
-
-		switch (corner) {
-		case 1:
-			if (Odometer.nearCorner == 4){
-				travelTo(Odometer.X3[0],Odometer.X3[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 3){
-				travelTo(Odometer.X2[0],Odometer.X2[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 2){
-				travelTo(Odometer.X1[0],Odometer.X1[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 1){
-				break;
-			}
-		case 2:
-			if (Odometer.nearCorner == 1){
-				travelTo(Odometer.X4[0],Odometer.X4[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 4){
-				travelTo(Odometer.X3[0],Odometer.X3[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 3){
-				travelTo(Odometer.X2[0],Odometer.X2[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 2){
-				break;
-			}
-		case 3:
-			if (Odometer.nearCorner == 2){
-				travelTo(Odometer.X1[0],Odometer.X1[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 1){
-				travelTo(Odometer.X4[0],Odometer.X4[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 4){
-				travelTo(Odometer.X3[0],Odometer.X3[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 3){
-				break;
-			}
-		case 4:
-			if (Odometer.nearCorner == 1){
-				travelTo(Odometer.X2[0],Odometer.X2[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 2){
-				travelTo(Odometer.X3[0],Odometer.X3[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 3){
-				travelTo(Odometer.X4[0],Odometer.X4[1]);
-				while (isNavigating){
-					wait(1000);
-				}
-			}
-			if (Odometer.nearCorner == 4){
-				break;
-			}
-		}	
-	}
 
 	/**
 	 * Order the robot to move to a position
@@ -199,6 +106,7 @@ public class Navigation extends Thread {
 			turnDegreesClockwise(theta);
 		// updates values to display
 
+		//RETURN IMMEDIATELY
 		goForward(distance, true);
 	}
 
@@ -233,6 +141,14 @@ public class Navigation extends Thread {
 
 		isNavigating = false;
 	}
+	
+	public void turnTo(double thetaTarget) {
+
+		double theta = thetaTarget - odo.getTheta();
+		turnDegreesClockwise(theta);
+
+	}
+	
 
 	public void rotate(boolean clockwise) {
 		leftMotor.setSpeed(SPEED_LOCALIZE);
@@ -298,6 +214,101 @@ public class Navigation extends Thread {
 
 	public int getSPEED_LOCALIZE() {
 		return SPEED_LOCALIZE;
+	}
+
+	
+	public void travelToCorner(int corner) throws InterruptedException{
+
+		switch (corner) {
+		case 1:
+			if (Odometer.nearCorner == 4){
+				travelTo(Odometer.X3[0],Odometer.X3[1]);
+				while (isNavigating){
+					wait(1000);
+				}
+			}
+			if (Odometer.nearCorner == 3){
+				travelTo(Odometer.X2[0],Odometer.X2[1]);
+				while (isNavigating){
+					wait(1000);
+				}
+			}
+			if (Odometer.nearCorner == 2){
+				travelTo(Odometer.X1[0],Odometer.X1[1]);
+				while (isNavigating){
+					wait(1000);
+				}
+			}
+			if (Odometer.nearCorner == 1){
+				break;
+			}
+		case 2:
+			if (Odometer.nearCorner == 1){
+				travelTo(Odometer.X4[0],Odometer.X4[1]);
+				while (isNavigating){
+					wait(1000);
+				}
+			}
+			if (Odometer.nearCorner == 4){
+				travelTo(Odometer.X3[0],Odometer.X3[1]);
+				while (isNavigating){
+					wait(1000);
+				}
+			}
+			if (Odometer.nearCorner == 3){
+				travelTo(Odometer.X2[0],Odometer.X2[1]);
+				while (isNavigating){
+					wait(1000);
+				}
+			}
+			if (Odometer.nearCorner == 2){
+				break;
+			}
+		case 3:
+			if (Odometer.nearCorner == 2){
+				travelTo(Odometer.X1[0],Odometer.X1[1]);
+				leftMotor.waitComplete();
+				leftMotor.waitComplete();
+				Sound.beepSequenceUp();
+			}
+			if (Odometer.nearCorner == 1){		
+				travelTo(Odometer.X4[0],Odometer.X4[1]);
+				leftMotor.waitComplete();
+				leftMotor.waitComplete();
+				Sound.beepSequenceUp();
+			}
+			if (Odometer.nearCorner == 4){
+				travelTo(Odometer.X3[0],Odometer.X3[1]);
+				leftMotor.waitComplete();
+				leftMotor.waitComplete();
+				Sound.beepSequenceUp();
+			}
+			if (Odometer.nearCorner == 3){
+				break;
+			}
+		case 4:
+			if (Odometer.nearCorner == 1){
+				travelTo(Odometer.X2[0],Odometer.X2[1]);
+				while (isNavigating){
+					wait(1000);
+				}
+			}
+			if (Odometer.nearCorner == 2){
+				travelTo(Odometer.X3[0],Odometer.X3[1]);
+				while (isNavigating){
+					wait(1000);
+				}
+			}
+			if (Odometer.nearCorner == 3){
+				travelTo(Odometer.X4[0],Odometer.X4[1]);
+				while (isNavigating){
+					wait(1000);
+				}
+			}
+			if (Odometer.nearCorner == 4){
+				break;
+			}
+		}	
 	}
 
 }

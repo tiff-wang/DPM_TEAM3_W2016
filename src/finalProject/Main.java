@@ -17,6 +17,7 @@ import lejos.robotics.SampleProvider;
  */
 public class Main {
 	public static int [] parameters={1,0,3,3,3,10,3,11,6,1};
+	public final static int TILE = 30;
 
 	public static void main(String[] args) throws InterruptedException {
 
@@ -29,7 +30,7 @@ public class Main {
 		
 		sensorPoller.start();
 		odo.start();
-		//nav.start();
+		nav.start();
 		
 		LCD.drawString("< Left	| 	Right >	", 0, 0);
 		int buttonChoice = Button.waitForAnyPress();
@@ -38,6 +39,7 @@ public class Main {
 		if(buttonChoice== Button.ID_LEFT){		// left for US sensor
 			
 			nav.travelToCorner(3);
+			
 			/*
 			if(parameters[1]==0){
 			
@@ -59,9 +61,14 @@ public class Main {
 		
 		} else if(buttonChoice== Button.ID_RIGHT){		// right for color sensor
 
-			loc.doLocalization();
-			loc.doLightLocalization();
 			
+			//loc.doLocalization();
+			//loc.doLightLocalization();
+			
+			nav.travelTo(6*TILE - 60, 5*TILE - 60);
+			nav.leftMotor.waitComplete();
+			nav.rightMotor.waitComplete();
+			nav.turnTo(90);
 
 		}
 		

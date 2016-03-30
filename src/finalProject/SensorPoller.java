@@ -22,11 +22,11 @@ public class SensorPoller extends Thread{
 	private static final Port portColorLauncher = LocalEV3.get().getPort("S2");
 	
 	// Sensor values that are constantly being updated
-	private static int valueUs;
-	private static float valueColorFront;
-	private static float valueColorBack;
-	private static float valueColorLauncherRed;
-	private static float valueColorLauncherBlue;
+	static int valueUs;
+	static float valueColorFront;
+	static float valueColorBack;
+	static float valueColorLauncherRed;
+	static float valueColorLauncherBlue;
 	// US SENSOR
 	SensorModes usSensor = new EV3UltrasonicSensor(portUs);
 	SampleProvider usValue = usSensor.getMode("Distance");
